@@ -1,12 +1,15 @@
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import SearchedInput from './searched-input'
+import { addUserAction } from '@/actions/github-actions'
+
+jest.mock('@/actions/github-actions', () => ({
+  addUserAction: jest.fn(),
+}))
 
 describe('SearchedInput Component', () => {
   beforeEach(() => {
-    localStorage.clear()
     jest.clearAllMocks()
-    jest.spyOn(window, 'dispatchEvent')
   })
 
   it('deve renderizar o input de busca', () => {
@@ -14,27 +17,24 @@ describe('SearchedInput Component', () => {
     expect(screen.getByPlaceholderText(/digite o nome de usuario do github/i)).toBeInTheDocument()
   })
 
-  it('deve salvar o usuario no localStorage ao disparar a busca', () => {
+  it('deve disparar a addUserAction ao apertar Enter', async () => {
     render(<SearchedInput />)
-    const input = screen.getByPlaceholderText(/digite o nome de usuario do github/i)
+    const input = screen.getByPlaceholderText(/digite o nome de usuario do github/i) as HTMLInputElement
 
     fireEvent.change(input, { target: { value: 'PedroVOliveira' } })
     fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' })
 
-    const savedUsers = JSON.parse(localStorage.getItem('github-users') || '[]')
-    expect(savedUsers).toHaveLength(1)
-    expect(savedUsers[0].username).toBe('@PedroVOliveira')
-    expect(window.dispatchEvent).toHaveBeenCalledWith(expect.any(Event))
-    expect((window.dispatchEvent as jest.Mock).mock.calls[0][0].type).toBe('github-users-updated')
+    expect(addUserAction).toHaveBeenCalled()
+    const formData = (addUserAction as jest.Mock).mock.calls[0][0]
+    expect(formData.get('username')).toBe('PedroVOliveira')
+
+    await waitFor(() => expect(input.value).toBe(''))
   })
 
-  it('deve limpar o input apos a busca', () => {
+  it('deve atualizar o valor do input ao digitar', () => {
     render(<SearchedInput />)
     const input = screen.getByPlaceholderText(/digite o nome de usuario do github/i) as HTMLInputElement
-
     fireEvent.change(input, { target: { value: 'testuser' } })
-    fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' })
-
-    expect(input.value).toBe('')
+    expect(input.value).toBe('testuser')
   })
 })
