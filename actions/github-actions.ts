@@ -20,13 +20,15 @@ export async function addUserAction(prevState: any, formData: FormData) {
   const existingUsersJson = cookieStore.get('github-users')?.value || '[]'
   const existingUsers: string[] = JSON.parse(existingUsersJson)
 
-  if (!existingUsers.includes(username)) {
-    const updatedUsers = [username, ...existingUsers]
-    cookieStore.set('github-users', JSON.stringify(updatedUsers), {
-      path: '/',
-      maxAge: 60 * 60 * 24 * 30,
-    })
+  if (existingUsers.includes(username)) {
+    return { error: 'Este usuário já está na sua lista.' }
   }
+
+  const updatedUsers = [username, ...existingUsers]
+  cookieStore.set('github-users', JSON.stringify(updatedUsers), {
+    path: '/',
+    maxAge: 60 * 60 * 24 * 30,
+  })
 
   revalidatePath('/')
   return { success: true }

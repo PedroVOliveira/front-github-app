@@ -60,4 +60,21 @@ describe('addUserAction Integration', () => {
     expect(result).toEqual({ error: 'Usuário não encontrado no GitHub.' })
     expect(mockCookieStore.set).not.toHaveBeenCalled()
   })
+
+  it('deve retornar erro para usuario ja existente na lista', async () => {
+    ; (global.fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      json: jest.fn().mockResolvedValue({ login: 'octocat' }),
+    })
+
+    mockCookieStore.get.mockReturnValue({ value: JSON.stringify(['octocat']) })
+
+    const formData = new FormData()
+    formData.append('username', 'octocat')
+
+    const result = await addUserAction(null, formData)
+
+    expect(result).toEqual({ error: 'Este usuário já está na sua lista.' })
+    expect(mockCookieStore.set).not.toHaveBeenCalled()
+  })
 })
