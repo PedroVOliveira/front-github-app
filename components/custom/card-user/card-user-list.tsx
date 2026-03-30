@@ -1,12 +1,12 @@
 import React from 'react'
 import CardUser from '@/components/custom/card-user/card-user'
-import { CardUserProps } from '@/components/custom/card-user/type'
+import { CardUserGithubProps } from '@/components/custom/card-user/type'
 
-const CardUserList = ({ users }: { users: CardUserProps[] }) => {
+const CardUserList = ({ users }: { users: CardUserGithubProps[] }) => {
   return (
     <div className='flex flex-col gap-2'>
       {users?.map((user) => (
-        <CardUser key={user.username} {...user} />
+        <CardUser key={user.login} user={user} />
       ))}
     </div>
   )

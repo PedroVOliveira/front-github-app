@@ -24,7 +24,9 @@ describe('Home Page SSR Integration', () => {
         json: jest.fn().mockResolvedValue({
           login: 'octocat',
           name: 'The Octocat',
-          avatar_url: 'https://github.com/octocat.png'
+          avatar_url: 'https://github.com/octocat.png',
+          public_repos: 42,
+          html_url: 'https://github.com/octocat'
         }),
       })
 
@@ -44,6 +46,6 @@ describe('Home Page SSR Integration', () => {
     const Result = await Home()
     render(Result)
 
-    expect(screen.queryByRole('heading', { level: 2 })).not.toBeInTheDocument()
+    expect(screen.getByText('Nenhum usuário encontrado')).toBeInTheDocument()
   })
 })
