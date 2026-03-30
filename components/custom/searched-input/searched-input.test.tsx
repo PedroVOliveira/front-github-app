@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import SearchedInput from './searched-input'
 import { addUserAction } from '@/actions/github-actions'
@@ -10,6 +10,7 @@ jest.mock('@/actions/github-actions', () => ({
 describe('SearchedInput Component', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    ;(addUserAction as jest.Mock).mockResolvedValue({ success: true })
   })
 
   it('deve renderizar o input de busca', () => {
@@ -20,15 +21,20 @@ describe('SearchedInput Component', () => {
   it('deve disparar a addUserAction ao apertar Enter', async () => {
     render(<SearchedInput />)
     const input = screen.getByPlaceholderText(/digite o nome de usuario do github/i) as HTMLInputElement
+    
+    await act(async () => {
+      fireEvent.change(input, { target: { value: 'PedroVOliveira' } })
+      fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' })
+    })
 
-    fireEvent.change(input, { target: { value: 'PedroVOliveira' } })
-    fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' })
-
-    expect(addUserAction).toHaveBeenCalled()
-    const formData = (addUserAction as jest.Mock).mock.calls[0][0]
+    await waitFor(() => {
+      expect(addUserAction).toHaveBeenCalled()
+    })
+    
+    const formData = (addUserAction as jest.Mock).mock.calls[0][1]
     expect(formData.get('username')).toBe('PedroVOliveira')
 
-    await waitFor(() => expect(input.value).toBe(''))
+    await waitFor(() => expect(input.value).toBe(''), { timeout: 2000 })
   })
 
   it('deve atualizar o valor do input ao digitar', () => {
