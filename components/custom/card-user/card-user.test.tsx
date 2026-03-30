@@ -57,7 +57,7 @@ describe('CardUserList Component', () => {
   ];
 
   it('deve renderizar uma lista de usuários', () => {
-    render(<CardUserList users={mockUsers} />);
+    render(<CardUserList users={mockUsers} currentPage={1} totalPages={1} />);
 
     expect(screen.getByText('Pedro Victor')).toBeInTheDocument();
     expect(screen.getByText('@pedrovoliveira')).toBeInTheDocument();

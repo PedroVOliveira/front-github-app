@@ -61,3 +61,32 @@ export async function validateGithubUser(username: string): Promise<boolean> {
   })
   return res.ok
 }
+
+export interface PaginatedGithubUsers {
+  users: CardUserGithubProps[]
+  totalUsers: number
+  totalPages: number
+  currentPage: number
+}
+
+export async function getPaginatedGithubUsers(
+  usernames: string[],
+  page: number = 0,
+  size: number = 5
+): Promise<PaginatedGithubUsers> {
+  const totalUsers = usernames.length
+  const totalPages = Math.ceil(totalUsers / size)
+  const startIndex = page * size
+  const paginatedUsernames = usernames.slice(startIndex, startIndex + size)
+
+  const users = (await Promise.all(
+    paginatedUsernames.map(username => getGithubUser(username))
+  )).filter((user): user is CardUserGithubProps => user !== null)
+
+  return {
+    users,
+    totalUsers,
+    totalPages,
+    currentPage: page
+  }
+}
