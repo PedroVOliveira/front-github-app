@@ -25,9 +25,16 @@ describe('addUserAction Integration', () => {
   })
 
   it('deve adicionar um usuario valido aos cookies', async () => {
+    const mockUser = {
+      login: 'octocat',
+      name: 'The Octocat',
+      avatar_url: 'https://github.com/octocat.png',
+      public_repos: 8,
+      html_url: 'https://github.com/octocat'
+    }
     ; (global.fetch as jest.Mock).mockResolvedValue({
       ok: true,
-      json: jest.fn().mockResolvedValue({ login: 'octocat' }),
+      json: jest.fn().mockResolvedValue(mockUser),
     })
 
     mockCookieStore.get.mockReturnValue({ value: '[]' })
@@ -40,7 +47,7 @@ describe('addUserAction Integration', () => {
     expect(result).toEqual({ success: true })
     expect(mockCookieStore.set).toHaveBeenCalledWith(
       'github-users',
-      JSON.stringify(['octocat']),
+      JSON.stringify([mockUser]),
       expect.any(Object)
     )
     expect(revalidatePath).toHaveBeenCalledWith('/')
@@ -62,12 +69,13 @@ describe('addUserAction Integration', () => {
   })
 
   it('deve retornar erro para usuario ja existente na lista', async () => {
+    const mockUser = { login: 'octocat', name: 'Octo', avatar_url: 'url', public_repos: 1, html_url: 'url' }
     ; (global.fetch as jest.Mock).mockResolvedValue({
       ok: true,
-      json: jest.fn().mockResolvedValue({ login: 'octocat' }),
+      json: jest.fn().mockResolvedValue(mockUser),
     })
 
-    mockCookieStore.get.mockReturnValue({ value: JSON.stringify(['octocat']) })
+    mockCookieStore.get.mockReturnValue({ value: JSON.stringify([mockUser]) })
 
     const formData = new FormData()
     formData.append('username', 'octocat')

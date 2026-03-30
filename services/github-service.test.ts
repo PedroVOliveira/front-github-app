@@ -7,26 +7,25 @@ describe('Github Service - Pagination', () => {
   })
 
   it('deve realizar o fatiamento correto dos usuarios e calcular metadados', async () => {
-    const mockUsernames = ['u1', 'u2', 'u3', 'u4', 'u5', 'u6']
+    const mockUsers = Array.from({ length: 6 }, (_, i) => ({
+      login: `u${i + 1}`,
+      name: `User ${i + 1}`,
+      avatar_url: `url${i + 1}`,
+      public_repos: i,
+      html_url: `html${i + 1}`
+    }))
 
-      ; (global.fetch as jest.Mock).mockResolvedValue({
-        ok: true,
-        json: jest.fn().mockImplementation(async () => ({ login: 'any' })),
-      })
+    const result = await getPaginatedGithubUsers(mockUsers, 1, 5)
 
-    const result = await getPaginatedGithubUsers(mockUsernames, 1, 5)
-
-    expect(result.users).toHaveLength(1) 
+    expect(result.users).toHaveLength(1)
     expect(result.totalPages).toBe(2)
     expect(result.totalUsers).toBe(6)
     expect(result.currentPage).toBe(1)
-    
-    expect(global.fetch).toHaveBeenCalledTimes(1)
   })
 
   it('deve retornar lista vazia se a pagina estiver fora do range', async () => {
-    const mockUsernames = ['u1', 'u2']
-    const result = await getPaginatedGithubUsers(mockUsernames, 4, 5)
+    const mockUsers = [{ login: 'u1', name: 'N1', avatar_url: 'A1', public_repos: 1, html_url: 'H1' }]
+    const result = await getPaginatedGithubUsers(mockUsers, 4, 5)
 
     expect(result.users).toHaveLength(0)
     expect(result.totalPages).toBe(1)

@@ -3,6 +3,7 @@ import { CardUserList } from "@/components/custom/card-user"
 import { EmptyState } from "@/components/custom/empty-state"
 import { cookies } from "next/headers"
 import { getGithubUser, getPaginatedGithubUsers } from "@/services/github-service"
+import { CardUserGithubProps } from "@/components/custom/card-user/type"
 
 export default async function Home({
   searchParams,
@@ -13,10 +14,10 @@ export default async function Home({
   const currentPage = Number(params.page) || 0
 
   const cookieStore = await cookies()
-  const savedUsernamesJson = cookieStore.get('github-users')?.value || '[]'
-  const savedUsernames: string[] = JSON.parse(savedUsernamesJson)
+  const savedUsersJson = cookieStore.get('github-users')?.value || '[]'
+  const savedUsers: CardUserGithubProps[] = JSON.parse(savedUsersJson)
 
-  const { users, totalPages, totalUsers } = await getPaginatedGithubUsers(savedUsernames, currentPage)
+  const { users, totalPages, totalUsers } = await getPaginatedGithubUsers(savedUsers, currentPage)
 
   return (
     <div className="flex flex-col gap-8 items-center p-8">
@@ -30,8 +31,8 @@ export default async function Home({
             description="Pesquise um usuário do GitHub para começar a montar sua lista."
           />
         ) : (
-          <CardUserList 
-            users={users} 
+          <CardUserList
+            users={users}
             currentPage={currentPage}
             totalPages={totalPages}
           />

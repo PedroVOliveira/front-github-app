@@ -14,21 +14,17 @@ describe('Home Page SSR Integration', () => {
   })
 
   it('deve renderizar a lista de usuarios a partir dos cookies', async () => {
+    const mockUser = {
+      login: 'octocat',
+      name: 'The Octocat',
+      avatar_url: 'https://github.com/octocat.png',
+      public_repos: 42,
+      html_url: 'https://github.com/octocat'
+    }
     const mockCookieStore = {
-      get: jest.fn().mockReturnValue({ value: JSON.stringify(['octocat']) }),
+      get: jest.fn().mockReturnValue({ value: JSON.stringify([mockUser]) }),
     };
     (cookies as jest.Mock).mockResolvedValue(mockCookieStore)
-
-      ; (global.fetch as jest.Mock).mockResolvedValue({
-        ok: true,
-        json: jest.fn().mockResolvedValue({
-          login: 'octocat',
-          name: 'The Octocat',
-          avatar_url: 'https://github.com/octocat.png',
-          public_repos: 42,
-          html_url: 'https://github.com/octocat'
-        }),
-      })
 
     const Result = await Home({ searchParams: Promise.resolve({}) })
     render(Result)
@@ -41,7 +37,7 @@ describe('Home Page SSR Integration', () => {
     const mockCookieStore = {
       get: jest.fn().mockReturnValue(null),
     }
-      ; (cookies as jest.Mock).mockResolvedValue(mockCookieStore)
+    ; (cookies as jest.Mock).mockResolvedValue(mockCookieStore)
 
     const Result = await Home({ searchParams: Promise.resolve({}) })
     render(Result)
@@ -50,24 +46,18 @@ describe('Home Page SSR Integration', () => {
   })
 
   it('deve fatiar os usuários corretamente baseado no parâmetro page', async () => {
-    const mockUsernames = ['user1', 'user2', 'user3', 'user4', 'user5', 'user6']
+    const mockUsers = Array.from({ length: 6 }, (_, i) => ({
+      login: `user${i + 1}`,
+      name: `User ${i + 1}`,
+      avatar_url: `url${i + 1}`,
+      public_repos: i,
+      html_url: `html${i + 1}`
+    }))
+    
     const mockCookieStore = {
-      get: jest.fn().mockReturnValue({ value: JSON.stringify(mockUsernames) }),
+      get: jest.fn().mockReturnValue({ value: JSON.stringify(mockUsers) }),
     };
     (cookies as jest.Mock).mockResolvedValue(mockCookieStore)
-
-    ;(global.fetch as jest.Mock).mockResolvedValue({
-      ok: true,
-      json: jest.fn().mockImplementation(async () => {
-        return {
-          login: 'user6',
-          name: 'User 6',
-          avatar_url: 'https://github.com/user6.png',
-          public_repos: 0,
-          html_url: 'https://github.com/user6'
-        }
-      }),
-    })
 
     const Result = await Home({ searchParams: Promise.resolve({ page: '1' }) })
     render(Result)

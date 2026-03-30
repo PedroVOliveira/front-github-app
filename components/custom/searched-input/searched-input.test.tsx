@@ -18,13 +18,14 @@ describe('SearchedInput Component', () => {
     expect(screen.getByPlaceholderText(/digite o nome de usuario do github/i)).toBeInTheDocument()
   })
 
-  it('deve disparar a addUserAction ao apertar Enter', async () => {
+  it('deve disparar a addUserAction ao submeter o formulário', async () => {
     render(<SearchedInput />)
     const input = screen.getByPlaceholderText(/digite o nome de usuario do github/i) as HTMLInputElement
+    const form = input.closest('form')!
     
     await act(async () => {
       fireEvent.change(input, { target: { value: 'PedroVOliveira' } })
-      fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' })
+      fireEvent.submit(form)
     })
 
     await waitFor(() => {

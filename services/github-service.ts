@@ -70,21 +70,17 @@ export interface PaginatedGithubUsers {
 }
 
 export async function getPaginatedGithubUsers(
-  usernames: string[],
+  users: CardUserGithubProps[],
   page: number = 0,
   size: number = 5
 ): Promise<PaginatedGithubUsers> {
-  const totalUsers = usernames.length
+  const totalUsers = users.length
   const totalPages = Math.ceil(totalUsers / size)
   const startIndex = page * size
-  const paginatedUsernames = usernames.slice(startIndex, startIndex + size)
-
-  const users = (await Promise.all(
-    paginatedUsernames.map(username => getGithubUser(username))
-  )).filter((user): user is CardUserGithubProps => user !== null)
+  const paginatedUsers = users.slice(startIndex, startIndex + size)
 
   return {
-    users,
+    users: paginatedUsers,
     totalUsers,
     totalPages,
     currentPage: page
