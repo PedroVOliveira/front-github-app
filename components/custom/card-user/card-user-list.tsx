@@ -21,10 +21,10 @@ interface CardUserListProps {
   totalPages: number
 }
 
-const CardUserList = ({ 
-  users, 
-  currentPage, 
-  totalPages 
+const CardUserList = ({
+  users,
+  currentPage,
+  totalPages
 }: CardUserListProps) => {
   const {
     selectedLogins,
@@ -41,7 +41,7 @@ const CardUserList = ({
 
   return (
     <div className='flex flex-col gap-6 w-full'>
-      <UserSelectionBar 
+      <UserSelectionBar
         isVisible={selectedLogins.length > 0}
         selectedCount={selectedLogins.length}
         isAllSelected={isAllSelected}
