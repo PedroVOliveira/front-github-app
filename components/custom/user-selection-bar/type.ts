@@ -1,8 +1,8 @@
 export interface UserSelectionBarProps {
+  isVisible: boolean
   selectedCount: number
-  totalCount: number
-  onDelete: () => void
-  onSelectAll: () => void
-  onClear: () => void
   isAllSelected: boolean
+  onSelectAll: () => void
+  onDelete: () => void
+  onClear: () => void
 }
