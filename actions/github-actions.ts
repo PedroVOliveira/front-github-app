@@ -35,8 +35,6 @@ export async function addUserAction(prevState: any, formData: FormData) {
   return { success: true }
 }
 
-
-
 export async function removeUserAction(username: string) {
   const cookieStore = await cookies()
   const existingUsersJson = cookieStore.get('github-users')?.value || '[]'
@@ -61,4 +59,5 @@ export async function removeManyUsersAction(usernames: string[]) {
   revalidatePath('/')
   return { success: true }
 }
+
 
