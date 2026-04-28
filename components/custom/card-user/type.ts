@@ -9,4 +9,6 @@ export type CardUserGithubProps = {
 export type CardUserProps = {
   user: CardUserGithubProps;
   onDelete?: (username: string) => void;
+  isSelected?: boolean;
+  onSelect?: (isSelected: boolean) => void;
 }

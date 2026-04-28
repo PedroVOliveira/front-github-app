@@ -6,10 +6,20 @@ import { ExternalLink, ChevronRight, Trash2 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { type CardUserProps } from "./type"
+import { Checkbox } from "@/components/ui/checkbox"
 
-const CardUser = ({ user, onDelete }: CardUserProps) => {
+const CardUser = ({ user, onDelete, isSelected, onSelect }: CardUserProps) => {
   return (
     <Card className="overflow-hidden hover:shadow-md transition-all duration-300 border-zinc-200 group relative bg-white">
+      <div className="absolute top-4 left-4 z-20">
+        <Checkbox 
+          checked={isSelected}
+          onCheckedChange={(checked) => onSelect?.(checked === true)}
+          aria-label={`Selecionar ${user.name || user.login}`}
+          className="size-5 border-zinc-300 data-[state=checked]:bg-zinc-900 data-[state=checked]:border-zinc-900 transition-colors shadow-sm"
+        />
+      </div>
+
       <CardContent className="p-0">
         <div className="flex items-center py-8 px-6 gap-6">
           <div className="relative size-16 rounded-full overflow-hidden border-2 border-zinc-100 shrink-0 group-hover:scale-105 transition-transform shadow-sm">

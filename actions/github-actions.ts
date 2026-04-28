@@ -49,3 +49,16 @@ export async function removeUserAction(username: string) {
   return { success: true }
 }
 
+export async function removeManyUsersAction(usernames: string[]) {
+  const cookieStore = await cookies()
+  const usernamesLower = usernames.map(u => u.toLowerCase())
+  const existingUsersJson = cookieStore.get('github-users')?.value || '[]'
+  const existingUsers: CardUserGithubProps[] = JSON.parse(existingUsersJson)
+
+  const updatedUsers = existingUsers.filter(u => !usernamesLower.includes(u.login.toLowerCase()))
+
+  cookieStore.set('github-users', JSON.stringify(updatedUsers), { path: '/' })
+  revalidatePath('/')
+  return { success: true }
+}
+
