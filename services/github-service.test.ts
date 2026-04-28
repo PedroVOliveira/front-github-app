@@ -1,34 +1,47 @@
-import { getPaginatedGithubUsers } from './github-service'
+import { getPaginatedGithubUsers, getGithubUser, validateGithubUser } from './github-service'
+import { createManyUserMocks } from '@/test/factories/user-factory'
 
-describe('Github Service - Pagination', () => {
-  beforeEach(() => {
-    jest.clearAllMocks()
-    global.fetch = jest.fn()
+describe('Github Service', () => {
+  describe('Pagination Logic', () => {
+    it('deve realizar o fatiamento correto dos usuarios e calcular metadados', async () => {
+      const mockUsers = createManyUserMocks(6)
+      const result = await getPaginatedGithubUsers(mockUsers, 1, 5)
+
+      expect(result.users).toHaveLength(1)
+      expect(result.totalPages).toBe(2)
+      expect(result.totalUsers).toBe(6)
+      expect(result.currentPage).toBe(1)
+    })
+
+    it('deve retornar lista vazia se a pagina estiver fora do range', async () => {
+      const mockUsers = createManyUserMocks(1)
+      const result = await getPaginatedGithubUsers(mockUsers, 4, 5)
+
+      expect(result.users).toHaveLength(0)
+      expect(result.totalPages).toBe(1)
+      expect(result.currentPage).toBe(4)
+    })
   })
 
-  it('deve realizar o fatiamento correto dos usuarios e calcular metadados', async () => {
-    const mockUsers = Array.from({ length: 6 }, (_, i) => ({
-      login: `u${i + 1}`,
-      name: `User ${i + 1}`,
-      avatar_url: `url${i + 1}`,
-      public_repos: i,
-      html_url: `html${i + 1}`
-    }))
+  describe('API Calls (MSW)', () => {
+    it('deve buscar um usuario do github com sucesso', async () => {
+      const user = await getGithubUser('test-user')
+      expect(user).not.toBeNull()
+      expect(user?.login).toBe('test-user')
+      expect(user?.name).toBe('User test-user')
+    })
 
-    const result = await getPaginatedGithubUsers(mockUsers, 1, 5)
+    it('deve retornar null para usuario inexistente', async () => {
+      const user = await getGithubUser('nonexistent-user')
+      expect(user).toBeNull()
+    })
 
-    expect(result.users).toHaveLength(1)
-    expect(result.totalPages).toBe(2)
-    expect(result.totalUsers).toBe(6)
-    expect(result.currentPage).toBe(1)
-  })
+    it('deve validar se um usuario existe', async () => {
+      const isValid = await validateGithubUser('test-user')
+      expect(isValid).toBe(true)
 
-  it('deve retornar lista vazia se a pagina estiver fora do range', async () => {
-    const mockUsers = [{ login: 'u1', name: 'N1', avatar_url: 'A1', public_repos: 1, html_url: 'H1' }]
-    const result = await getPaginatedGithubUsers(mockUsers, 4, 5)
-
-    expect(result.users).toHaveLength(0)
-    expect(result.totalPages).toBe(1)
-    expect(result.currentPage).toBe(4)
+      const isInvalid = await validateGithubUser('nonexistent-user')
+      expect(isInvalid).toBe(false)
+    })
   })
 })

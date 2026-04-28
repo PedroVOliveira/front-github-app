@@ -2,7 +2,7 @@ import { SearchedInput } from "@/components/custom/searched-input"
 import { CardUserList } from "@/components/custom/card-user"
 import { EmptyState } from "@/components/custom/empty-state"
 import { cookies } from "next/headers"
-import { getGithubUser, getPaginatedGithubUsers } from "@/services/github-service"
+import { getPaginatedGithubUsers } from "@/services/github-service"
 import { CardUserGithubProps } from "@/components/custom/card-user/type"
 
 export default async function Home({
