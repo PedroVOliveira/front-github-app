@@ -7,11 +7,25 @@ import Image from "next/image"
 import Link from "next/link"
 import { type CardUserProps } from "./type"
 import { Checkbox } from "@/components/ui/checkbox"
+import { cn } from "@/lib/utils"
 
 const CardUser = ({ user, onDelete, isSelected, onSelect }: CardUserProps) => {
+  const handleCardClick = () => {
+    onSelect?.(!isSelected)
+  }
+
   return (
-    <Card className="overflow-hidden hover:shadow-md transition-all duration-300 border-zinc-200 group relative bg-white">
-      <div className="absolute top-4 left-4 z-20">
+    <Card 
+      onClick={handleCardClick}
+      className={cn(
+        "overflow-hidden transition-all duration-300 border-zinc-200 group relative bg-white cursor-pointer select-none",
+        isSelected ? "ring-2 ring-zinc-900 shadow-lg border-transparent" : "hover:shadow-md"
+      )}
+    >
+      <div 
+        className="absolute top-4 left-4 z-20"
+        onClick={(e) => e.stopPropagation()}
+      >
         <Checkbox 
           checked={isSelected}
           onCheckedChange={(checked) => onSelect?.(checked === true)}
@@ -39,6 +53,7 @@ const CardUser = ({ user, onDelete, isSelected, onSelect }: CardUserProps) => {
           <Link 
             href={`/user/${user.login}`}
             className="flex items-center gap-2 px-5 py-2.5 bg-zinc-900 hover:bg-zinc-800 text-white text-sm font-bold rounded-xl transition-all z-10 whitespace-nowrap shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0"
+            onClick={(e) => e.stopPropagation()}
           >
             <span>Ver detalhes</span>
             <ChevronRight className="size-4 text-zinc-400" />
