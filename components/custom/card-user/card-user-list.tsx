@@ -1,13 +1,16 @@
+'use client'
+
 import React from 'react'
 import CardUser from '@/components/custom/card-user/card-user'
 import { CardUserGithubProps } from '@/components/custom/card-user/type'
-import { 
-  Pagination, 
-  PaginationContent, 
-  PaginationItem, 
+import { removeUserAction } from '@/actions/github-actions'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
   PaginationLink,
   PaginationNext,
-  PaginationPrevious 
+  PaginationPrevious
 } from '@/components/ui/pagination'
 
 interface CardUserListProps {
@@ -23,7 +26,11 @@ const CardUserList = ({ users, currentPage, totalPages }: CardUserListProps) => 
     <div className='flex flex-col gap-6 w-full'>
       <div className='flex flex-col gap-3 min-h-[400px]'>
         {users.map((user) => (
-          <CardUser key={user.login} user={user} />
+          <CardUser
+            key={user.login}
+            user={user}
+            onDelete={() => removeUserAction(user.login)}
+          />
         ))}
       </div>
 
@@ -31,16 +38,16 @@ const CardUserList = ({ users, currentPage, totalPages }: CardUserListProps) => 
         <Pagination className="mt-2">
           <PaginationContent>
             <PaginationItem>
-              <PaginationPrevious 
-                href={currentPage > 0 ? `/?page=${currentPage - 1}` : '#'} 
+              <PaginationPrevious
+                href={currentPage > 0 ? `/?page=${currentPage - 1}` : '#'}
                 className={currentPage === 0 ? "pointer-events-none opacity-50" : ""}
                 text="Anterior"
               />
             </PaginationItem>
-            
+
             {Array.from({ length: totalPages }, (_, i) => i).map((page) => (
               <PaginationItem key={page}>
-                <PaginationLink 
+                <PaginationLink
                   href={`/?page=${page}`}
                   isActive={currentPage === page}
                 >
@@ -50,8 +57,8 @@ const CardUserList = ({ users, currentPage, totalPages }: CardUserListProps) => 
             ))}
 
             <PaginationItem>
-              <PaginationNext 
-                href={currentPage < totalPages - 1 ? `/?page=${currentPage + 1}` : '#'} 
+              <PaginationNext
+                href={currentPage < totalPages - 1 ? `/?page=${currentPage + 1}` : '#'}
                 className={currentPage === totalPages - 1 ? "pointer-events-none opacity-50" : ""}
                 text="Próximo"
               />

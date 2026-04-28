@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers'
 import { revalidatePath } from 'next/cache'
-import { addUserAction } from './github-actions'
+import { addUserAction, removeUserAction } from './github-actions'
 import { createUserMock } from '@/test/factories/user-factory'
 
 describe('addUserAction Integration', () => {
@@ -12,7 +12,7 @@ describe('addUserAction Integration', () => {
       get: jest.fn(),
       set: jest.fn(),
     }
-    ;(cookies as jest.Mock).mockResolvedValue(mockCookieStore)
+      ; (cookies as jest.Mock).mockResolvedValue(mockCookieStore)
   })
 
   it('deve adicionar um usuario valido aos cookies', async () => {
@@ -54,5 +54,33 @@ describe('addUserAction Integration', () => {
 
     expect(result).toEqual({ error: 'Este usuário já está na sua lista.' })
     expect(mockCookieStore.set).not.toHaveBeenCalled()
+  })
+})
+
+describe('deleteUserAction Integration', () => {
+  let mockCookieStore: any
+
+  beforeEach(async () => {
+    jest.clearAllMocks()
+    mockCookieStore = {
+      get: jest.fn(),
+      set: jest.fn(),
+    }
+      ; (cookies as jest.Mock).mockResolvedValue(mockCookieStore)
+  })
+
+  it('deve deletar um usuario da lista', async () => {
+    const mockUser = createUserMock({ login: 'pedrovoliveira' })
+    mockCookieStore.get.mockReturnValue({ value: JSON.stringify([mockUser]) })
+
+    const result = await removeUserAction('pedrovoliveira')
+
+    expect(result).toEqual({ success: true })
+    expect(mockCookieStore.set).toHaveBeenCalledWith(
+      'github-users',
+      '[]',
+      expect.any(Object)
+    )
+    expect(revalidatePath).toHaveBeenCalledWith('/')
   })
 })

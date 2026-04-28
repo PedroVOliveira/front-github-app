@@ -7,7 +7,7 @@ import { CardUserGithubProps } from '@/components/custom/card-user/type'
 
 export async function addUserAction(prevState: any, formData: FormData) {
   const username = formData.get('username')?.toString().trim().replace('@', '')
-  
+
   if (!username) {
     return { error: 'Por favor, insira um nome de usuário.' }
   }
@@ -34,3 +34,18 @@ export async function addUserAction(prevState: any, formData: FormData) {
   revalidatePath('/')
   return { success: true }
 }
+
+
+
+export async function removeUserAction(username: string) {
+  const cookieStore = await cookies()
+  const existingUsersJson = cookieStore.get('github-users')?.value || '[]'
+  const existingUsers: CardUserGithubProps[] = JSON.parse(existingUsersJson)
+
+  const updatedUsers = existingUsers.filter(u => u.login.toLowerCase() !== username.toLowerCase())
+
+  cookieStore.set('github-users', JSON.stringify(updatedUsers), { path: '/' })
+  revalidatePath('/')
+  return { success: true }
+}
+

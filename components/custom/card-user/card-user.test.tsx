@@ -1,7 +1,15 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import CardUser from './card-user';
 import CardUserList from './card-user-list';
+import { createUserMock, createManyUserMocks } from '@/test/factories/user-factory';
+
+const mockUser = createUserMock({
+  name: 'Pedro Victor',
+  login: 'PedroVOliveira',
+  public_repos: 42,
+})
+const mockUsers = createManyUserMocks(5)
 
 jest.mock('next/image', () => ({
   __esModule: true,
@@ -11,13 +19,6 @@ jest.mock('next/image', () => ({
 }));
 
 describe('CardUser Component', () => {
-  const mockUser = {
-    login: 'PedroVOliveira',
-    name: 'Pedro Victor',
-    avatar_url: 'https://github.com/PedroVOliveira.png',
-    public_repos: 42,
-    html_url: 'https://github.com/PedroVOliveira',
-  };
 
   it('deve renderizar as informações do usuário corretamente', () => {
     render(<CardUser user={mockUser} />);
@@ -39,32 +40,31 @@ describe('CardUser Component', () => {
 });
 
 describe('CardUserList Component', () => {
-  const mockUsers = [
-    {
-      login: 'pedrovoliveira',
-      name: 'Pedro Victor',
-      avatar_url: 'https://github.com/pedrovoliveira.png',
-      public_repos: 42,
-      html_url: 'https://github.com/pedrovoliveira',
-    },
-    {
-      login: 'akitaonrails',
-      name: 'Akita',
-      avatar_url: 'https://github.com/akitaonrails.png',
-      public_repos: 100,
-      html_url: 'https://github.com/akitaonrails',
-    },
-  ];
 
   it('deve renderizar uma lista de usuários', () => {
     render(<CardUserList users={mockUsers} currentPage={1} totalPages={1} />);
 
-    expect(screen.getByText('Pedro Victor')).toBeInTheDocument();
-    expect(screen.getByText('@pedrovoliveira')).toBeInTheDocument();
-    expect(screen.getByText('Akita')).toBeInTheDocument();
-    expect(screen.getByText('@akitaonrails')).toBeInTheDocument();
+    mockUsers.forEach(user => {
+      expect(screen.getByText(user.name!)).toBeInTheDocument()
+      expect(screen.getByText(`@${user.login}`)).toBeInTheDocument()
+    })
 
     const images = screen.getAllByRole('img');
-    expect(images).toHaveLength(2);
+    expect(images).toHaveLength(mockUsers.length);
   });
 });
+
+
+describe('CardUser Delete Interaction', () => {
+  it('deve deletar o item após clicar no botão de delete', () => {
+    const onDeleteMock = jest.fn();
+    render(<CardUser user={mockUser} onDelete={onDeleteMock} />)
+
+    const button = screen.getByRole('button', { name: /deletar/i })
+    expect(button).toBeInTheDocument()
+    fireEvent.click(button)
+    expect(onDeleteMock).toHaveBeenCalledTimes(1)
+    expect(onDeleteMock).toHaveBeenCalledWith(mockUser.login)
+
+  })
+})
