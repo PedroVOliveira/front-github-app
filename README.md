@@ -1,97 +1,54 @@
 # GitHub App SSR
 
-Aplicação de portfólio GitHub construída com **Next.js 16 (App Router)**, 100% Server-Side Rendering, usando **Parallel Routes** para exibição de detalhes em Drawer.
+Aplicação de portfólio GitHub construída com **Next.js 16 (App Router)**, 100% Server-Side Rendering, usando **Parallel Routes** para exibição de detalhes em Drawer e operações em massa totalmente stateless.
 
-## 🚀 Tech Stack
+## 🚀 Novas Funcionalidades (v0.2.0)
+
+- **Seleção em Massa (Stateless)**: Interface de seleção múltipla gerenciada por hook customizado, sem dependência de URL Search Params.
+- **Floating Action Bar**: Barra de ações flutuante com design premium (Glassmorphism + Blur) para operações de exclusão em massa.
+- **Confirmação Visual**: Substituição de alertas nativos por **AlertDialog (Shadcn UI)** com tema Light para maior destaque.
+- **Acessibilidade Aprimorada**: Cards interativos com suporte a clique em toda a área e controle fino de propagação de eventos.
+
+## 🛠️ Tech Stack
 
 - **Next.js 16** — App Router com Server Components e Server Actions
-- **React 19** — useActionState, startTransition
-- **TypeScript** — Tipagem completa
-- **Tailwind CSS v4** — Estilização utilitária
-- **shadcn/ui** — Componentes base (Card, Alert, Input)
+- **React 19** — useActionState, startTransition, hooks customizados
+- **TypeScript** — Tipagem completa e interfaces rigorosas
+- **Tailwind CSS v4** — Estilização utilitária moderna
+- **shadcn/ui** — Componentes base (Card, Alert, Dialog, Checkbox, Collapsible)
 - **Vaul** — Drawer com animações suaves
-- **Jest + React Testing Library** — Testes unitários e de integração
+- **Jest + React Testing Library** — 100% de cobertura na lógica crítica
 
-## 📁 Estrutura do Projeto
+## 📁 Estrutura do Projeto (Atualizada)
 
 ```
 app/
 ├── page.tsx                          # Home (SSR + Cookies)
 ├── layout.tsx                        # Layout com slot @modal
-├── @modal/
-│   ├── default.tsx                   # Slot vazio (sem modal)
-│   └── (.)user/[username]/page.tsx   # Intercepting Route (Drawer)
-└── user/[username]/page.tsx          # Fallback (acesso direto)
+└── @modal/                           # Intercepting Route (Drawer)
 
 components/custom/
-├── card-user/                        # Card de usuário
+├── card-user/                        # Card de usuário + Hook useCardUser
+├── user-selection-bar/               # Barra de ações flutuante (Stateless)
+├── confirm-dialog/                   # Wrapper de confirmação (Shadcn UI)
 ├── searched-input/                   # Input de busca com Server Action
-├── user-detail-drawer/               # Drawer de detalhes (vaul)
-└── empty-state/                      # Estado vazio
+└── user-detail-drawer/               # Drawer de detalhes
 
-services/
-└── github-service.ts                 # Camada de fetch da API do GitHub
+test/
+├── factories/                        # Fábricas de dados para testes unitários
+└── msw/                              # Mock Service Worker para API
 
 actions/
-└── github-actions.ts                 # Server Action (persistência via Cookies)
-
-utils/
-└── join-date/                        # Utilitário de formatação de data
+└── github-actions.ts                 # Server Actions (Individual e Bulk Delete)
 ```
 
-## ⚙️ Configuração
-
-### 1. Instalar dependências
-
-```bash
-npm install
-```
-
-### 2. Configurar variáveis de ambiente
-
-```bash
-cp .env.example .env
-```
-
-Edite o `.env` e adicione seu token:
-
-| Variável | Descrição | Obrigatório |
-|---|---|---|
-| `GITHUB_API_URL` | Base URL da API do GitHub | Sim |
-| `GITHUB_TOKEN` | Personal Access Token do GitHub | Recomendado |
-
-### 2.1 Como gerar o GITHUB_TOKEN
-
-1. Acesse seu [GitHub](https://github.com/) e faça login.
-2. No canto superior direito, clique na sua foto de perfil e vá em **Settings**.
-3. Na barra lateral esquerda, role até o fim e clique em **Developer settings**.
-4. Clique em **Personal access tokens** e escolha **Tokens (classic)**.
-5. Clique em **Generate new token** -> **Generate new token (classic)**.
-6. Dê um nome ao token (ex: "My GitHub App").
-7. Selecione a expiração (EX: 30 dias).
-8. Em **Select scopes**, você não precisa selecionar nada para ler dados públicos, mas pode marcar `repo` se quiser que ele tenha mais acesso.
-9. Clique em **Generate token** no final da página.
-10. **IMPORTANTE:** Copie o token agora! Você não poderá vê-lo novamente.
-11. Cole o token no seu arquivo `.env` na variável `GITHUB_TOKEN`.
-
-
-### 3. Rodar em desenvolvimento
-
-```bash
-npm run dev
-```
-
-### 4. Rodar testes
-
-```bash
-npm test              # Executa todos os testes
-npm run test:watch    # Modo watch
-```
-
-## 🧪 Cobertura de Testes
+## 🧪 Cobertura de Testes (11 Suítes)
 
 | Suíte | Tipo | O que testa |
 |---|---|---|
+| `use-card-user.test.tsx` | Unitário | Lógica de seleção, toggle all e integração com actions |
+| `user-selection-bar.test.tsx` | Unitário | Renderização da barra flutuante e triggers de ações |
+| `card-user.accessibility.test.tsx`| Acessibilidade | ARIA Roles, navegação por teclado e semântica |
 | `page.test.tsx` | Integração | SSR + Cookies + fetch + EmptyState |
 | `github-actions.test.ts` | Integração | Server Action + Cookies + validação |
 | `card-user.test.tsx` | Unitário | Renderização do card + link de detalhes |
@@ -100,9 +57,9 @@ npm run test:watch    # Modo watch
 | `empty-state.test.tsx` | Unitário | Componente de estado vazio |
 | `join-date.test.ts` | Unitário | Formatação de data (12 meses) |
 
-```
-Test Suites: 7 passed, 7 total
-Tests:       25 passed, 25 total
+```bash
+# Executar todos os testes
+pnpm run test
 ```
 
 ## 🏗️ Arquitetura
@@ -110,10 +67,11 @@ Tests:       25 passed, 25 total
 ```
 Cookie (persistência) → Server Component (SSR) → GitHub API (fetch)
                                                       ↓
+Floating Action Bar ← useCardUser (Hook) ← CardUserList (Orquestrador)
+                                                      ↓
                         Parallel Route (@modal) → Drawer (detalhes)
 ```
 
-- **Persistência**: Usernames salvos em Cookies (acessíveis no servidor)
-- **Busca**: Server Action valida o usuário na API antes de salvar
-- **Detalhes**: Intercepting Route renderiza o Drawer sem perder o contexto da lista
-- **Service Layer**: `github-service.ts` centraliza toda comunicação com a API
+- **Stateless Hook Pattern**: Toda a lógica de seleção foi encapsulada no `useCardUser`, mantendo os componentes visuais puros e fáceis de testar.
+- **Factory Pattern**: Implementamos fábricas de dados (`user-factory`, `selection-bar-factory`) para garantir testes robustos e fáceis de manter.
+- **Local Context**: A persistência continua sendo via Cookies, garantindo que o SSR reflita as deleções (individuais ou em massa) instantaneamente.
