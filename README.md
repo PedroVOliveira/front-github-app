@@ -51,11 +51,17 @@ actions/
 | `card-user.accessibility.test.tsx`| Acessibilidade | ARIA Roles, navegação por teclado e semântica |
 | `page.test.tsx` | Integração | SSR + Cookies + fetch + EmptyState |
 | `github-actions.test.ts` | Integração | Server Action + Cookies + validação |
+| `github-service.test.ts` | Integração | Comunicação com a API do GitHub e tratamento de dados |
 | `card-user.test.tsx` | Unitário | Renderização do card + link de detalhes |
 | `searched-input.test.tsx` | Unitário | Input de busca + useActionState |
 | `user-detail-drawer.test.tsx` | Unitário | Drawer com dados do usuário |
 | `empty-state.test.tsx` | Unitário | Componente de estado vazio |
 | `join-date.test.ts` | Unitário | Formatação de data (12 meses) |
+
+```
+Test Suites: 11 passed, 11 total
+Tests:       47 passed, 47 total
+```
 
 ```bash
 # Executar todos os testes
